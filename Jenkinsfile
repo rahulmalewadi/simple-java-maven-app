@@ -16,12 +16,7 @@ pipeline {
                buildMaven()
             }
         }
-        stage("SonarQube analysis") {
-            agent any
-            steps {
-              sonarQube()
-            }
-        }
+        
         stage("slackNotify") {
             steps {
                 slackMessage()
