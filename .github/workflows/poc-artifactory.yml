@@ -27,7 +27,7 @@ jobs:
         server-id: artifactory # value of repository/id field of the pom.xml
         server-username: ARTIFACTORY_USERNAME_REF  # env variable name for username of Artifactory server; value can be anything as it is a transient user
         server-password: ARTIFACTORY_TOKEN_REF # env variable name for Artifactory access token
-        # after running this action, the <username> tag contains ${env.ARTIFACTORY_USERNAME_REF} and <password> contains ${env.ARTIFACTORY_TOKEN_REF}
+        
  
     - name: Build with Maven
       run: mvn -B package
