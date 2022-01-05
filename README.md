@@ -17,3 +17,4 @@ the "Deliver" stage of your Pipeline.
 the repository contains ci-cd using github actions for Java Maven projects ,
 using snyk as a security scanner and storing artifact on docker hub which can be 
 further used to deploy on containers using kubernetes cluster 
+addiing pr
