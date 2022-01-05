@@ -1,34 +1,165 @@
 # This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: Java CI with Maven
+name: Test with Maven a
 
 on:
   push:
-    branches: [ tst ]
+    branches: [ master ]
   pull_request:
-    branches: [ tst ]
+    branches: [ master ]
 
+  workflow_dispatch:
+  
+    inputs:
+      test1:
+      
+      
 jobs:
-  build:
+  
+    
+  test:
+    runs-on: [ubuntu-latest]
 
-    runs-on: ubuntu-latest
+      
+    #runs-on: ets   # ubuntu-latest
+    #needs: test_package
+
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up JDK 11
+    - name: Set up our custom Artifactory instance
       uses: actions/setup-java@v2
-      with:
-        java-version: '11'
+      with: # running setup-java again overwrites the settings.xml
         distribution: 'adopt'
-        cache: maven
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
-  deploy:
-    runs-on: ubuntu-latest
-    environment: tst
-    needs: build
+        java-version: '11'
+        #server-id: github # value of repository/id field of the pom.xml
+        #server-username: rahulmalewadi  # env variable name for username of Artifactory server; value can be anything as it is a transient user
+        #server-password: PAT_TOKEN_REF # env variable name for Artifactory access token
+        overwrite-settings: false
+    - name: Get branch name
+      id: branch-name
+      uses: tj-actions/branch-names@v5.1
+        
+    - name: Running on the default branch.
+      if: steps.branch-name.outputs.is_default == 'true'
+      run: |
+        echo "Running on default: ${{ steps.branch-name.outputs.current_branch }}"
+      # Outputs: "Running on default: main".
+      
+    - name: Running on a pull request branch.
+      if: steps.branch-name.outputs.is_default == 'false'
+      run: |
+        echo "Running on pr: ${{ steps.branch-name.outputs.current_branch }}"
+    - name: Declare some variables
+      id: vars
+    
+      run: |
+        echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+      
+        
+    - name: mvn
+      run: mvn package --file pom.xml
+    
+    - name: copy artifact
+      if: ${{steps.MAVEN_BUILD.outcome}} == 'failure' && !contains(${{steps.branch-name.outputs.current_branch}} , 'master')
+      run: mkdir staging && cp target/*.jar staging 
+      env:
+        branch-name: ${{ steps.branch-name.outputs.current_branch }}
+    
+        
+    - name: upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ github.event.repository.name }}-${{github.run_number}}
+        path: staging
+  
+  release:
     if: github.event_name != 'pull_request'
+    runs-on: [ubuntu-latest]
+    environment: tst
+    
+    needs: test
+    container: 
+      image: ghcr.io/rahulmalewadi/install-zip/demo:v2
+      credentials:
+        username: rahulmalewadi
+        password: ${{secrets.PAT_TOKEN}}
+    env:
+      SHA8: ${GITHUB_SHA::8}
+      USERNAME: rahulmalewadi
+      PASSWORD: ${{secrets.PAT_TOKEN}}
     steps:
-      - name: deploy to tst
-        run: echo "tst deployed"
+      
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v5.1
+        
+      - name: Running on the default branch.
+        if: steps.branch-name.outputs.is_default == 'true'
+        run: |
+          echo "Running on default: ${{ steps.branch-name.outputs.current_branch }}"
+      # Outputs: "Running on default: main".
+      
+      - name: Running on a pull request branch.
+        if: steps.branch-name.outputs.is_default == 'false'
+        run: |
+          echo "Running on pr: ${{ steps.branch-name.outputs.current_branch }}"
+      - name: Declare some variables
+        id: slug
+    
+        run: |
+          echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
+      # Outputs: "Running on pr: feature/test".
+      
+      - name: download artifact
+        uses: actions/download-artifact@v2
+        with: 
+          name: ${{ github.event.repository.name }}-${{github.run_number}}
+          path: download
+      - name: docker
+        run: |
+          
+          zip -r artifact.zip ${{ github.event.repository.name }}-${{ steps.branch-name.outputs.current_branch }}-${{github.run_number}} download
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN}}
+        
+      #- name: arhiceve the package
+       # uses: montudor/action-zip@v1
+        #with:
+         # args: zip  -r artifact.zip ${{ github.event.repository.name }}-${{ steps.branch-name.outputs.current_branch }}-${{github.run_number}} download
+
+      - name: create github release
+        id: create-release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN}}
+        with:
+          tag_name: v${{ steps.slug.outputs.sha8 }}
+          release_name: Release V${{ steps.slug.outputs.sha8 }}
+      - name: upload release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN}}
+        with: 
+          upload_url: ${{ steps.create-release.outputs.upload_url}}
+          asset_path: artifact.zip
+          asset_name: release${{github.run_number}}.zip
+          
+          asset_content_type: application/zip
+          
+        
+          
+        
+        
+        
+    #- name: trigger deploy
+     # run: |
+      #  curl -XPOST -u "${{secrets.GIT_USER}}:${{secrets.PAT_TOKEN}}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" ${{secrets.GIT_REQ_URL}} --data '{"event_type": "dev_deploy_workflow"}'
+          
+        
+    #- name: Upload a Build Artifact
+      #uses: actions/upload-artifact@v2.2.4
+   # - uses: nanasess/setup-chromedriver@master
+   
+    
