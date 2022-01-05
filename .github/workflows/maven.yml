@@ -5,9 +5,9 @@ name: Java CI with Maven
 
 on:
   push:
-    branches: [ master ]
+    branches: [ tst ]
   pull_request:
-    branches: [ master ]
+    branches: [ tst ]
 
 jobs:
   build:
@@ -24,3 +24,10 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: deploy to tst
+        run: echo "tst deployed"
