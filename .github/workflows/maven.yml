@@ -25,8 +25,9 @@ jobs:
         distribution: 'adopt'
         cache: maven
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: echo "build success"
   deploy_to_uat:
+    needs:[build]
     if: github.event_name == 'pull_request'
     environment: uat
 
@@ -37,7 +38,7 @@ jobs:
           echo "deploying to uat"
           echo "deployed to uat"
   deploy_to_prod:
-    needs: [deploy_to_uat]
+    needs: [deploy_to_uat , build] 
     if: github.event_name != 'pull_request'
     environment: prod
 
