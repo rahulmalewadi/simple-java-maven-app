@@ -80,11 +80,7 @@ jobs:
     environment: tst
     
     needs: test
-    container: 
-      image: ghcr.io/rahulmalewadi/install-zip/demo:v2
-      credentials:
-        username: rahulmalewadi
-        password: ${{secrets.PAT_TOKEN}}
+    
     env:
       SHA8: ${GITHUB_SHA::8}
       USERNAME: rahulmalewadi
