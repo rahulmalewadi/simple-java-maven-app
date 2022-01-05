@@ -27,7 +27,7 @@ jobs:
     - name: Build with Maven
       run: echo "build success"
   deploy_to_uat:
-    needs:[build]
+    needs: [build]
     if: github.event_name == 'pull_request'
     environment: uat
 
