@@ -1,6 +1,6 @@
 name: cd-pcf
 on:
-  repository_dispatch:
+  repository_dispatch: 
     types: [tst_deploy_workflow]
   workflow_dispatch:
     inputs:
