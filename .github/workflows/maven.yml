@@ -145,7 +145,7 @@ jobs:
           asset_content_type: application/zip
       - name: trigger deploy
         run: |
-          curl -XPOST -u "${{secrets.GIT_USER}}:${{secrets.PAT_TOKEN}}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" ${{secrets.GIT_REQ_URL}} --data '{"event_type": "tst_deploy_workflow"}'
+          curl -XPOST -u "${{ secrets.GIT_USER}}:${{secrets.PAT_TOKEN}}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" https://api.github.com/repos/rahulmalewadi/simple-java-maven-app/dispatches --data '{"event_type": "tst_deploy_workflow"}'
           
         
     #- name: Upload a Build Artifact
