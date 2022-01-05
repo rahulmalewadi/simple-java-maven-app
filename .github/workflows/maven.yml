@@ -140,11 +140,22 @@ jobs:
         with: 
           upload_url: ${{ steps.create-release.outputs.upload_url}}
           asset_path: artifact.zip
-          asset_name: release${{github.run_number}}.zip
+          asset_name: release${{ steps.slug.outputs.sha8 }}.zip
           
           asset_content_type: application/zip
+      - name: trigger deploy
+        run: |
+          curl -XPOST -u "rahulmalewadi:${{secrets.PAT_TOKEN}}" -H "Accept: application/vnd.github.everest-preview+json" -H "Content-Type: application/json" rahulmalewadi/simple-java-maven-app --data '{"event_type": "tst_deploy_workflow"}'
           
         
+    #- name: Upload a Build Artifact
+      #uses: actions/upload-artifact@v2.2.4
+   # - uses: nanasess/setup-chromedriver@master
+   
+    
+
+          
+    
           
         
         
