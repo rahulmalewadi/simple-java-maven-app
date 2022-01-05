@@ -5,9 +5,9 @@ name: Test with Maven a
 
 on:
   push:
-    branches: [ master ]
+    branches: [ tst ]
   pull_request:
-    branches: [ master ]
+    branches: [ tst ]
 
   workflow_dispatch:
   
