@@ -77,7 +77,7 @@ jobs:
   release:
     if: github.event_name != 'pull_request'
     runs-on: [ubuntu-latest]
-    environment: tst
+    
     
     needs: test
     
