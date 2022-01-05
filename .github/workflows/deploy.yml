@@ -1,0 +1,45 @@
+name: cd-pcf
+on:
+  repository_dispatch:
+    types: [tst_deploy_workflow]
+  workflow_dispatch:
+    inputs:
+      branch:
+        default: $GITHUB_REF_NAME
+        required: true
+        description: enter the branch name
+jobs:
+  deploy-to-pcf:
+    environment: tst
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Get branch name
+        id: branch-name
+        uses: tj-actions/branch-names@v5.1
+        
+      - name: Running on the default branch.
+        if: steps.branch-name.outputs.is_default == 'true'
+        run: |
+          echo "Running on default: ${{ steps.branch-name.outputs.current_branch }}"
+     
+      
+      - name: Running on a pull request branch.
+        if: steps.branch-name.outputs.is_default == 'false'
+        run: |
+          echo "Running on pr: ${{ steps.branch-name.outputs.current_branch }}"
+      - name: Declare some variables
+        id: slug
+    
+        run: |
+          echo "::set-output name=sha8::$(echo ${GITHUB_SHA} | cut -c1-8)"
+      - name: asset    
+        uses: dsaltares/fetch-gh-release-asset@master
+        with:
+          repo: "rahulmalewadi/poc"
+          version: "tags/v${{ steps.slug.outputs.sha8 }}"
+          file: "release${{steps.slug.outputs.sha8}}.zip"
+          target: "subdir/plague-linux.zip"
+          token: ${{ secrets.PAT_TOKEN }}
+     
