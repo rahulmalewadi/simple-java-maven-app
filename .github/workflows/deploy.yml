@@ -1,5 +1,7 @@
 name: cd-pcf
 on:
+  push:
+    branches: [tst]
   repository_dispatch: 
     types: [tst_deploy_workflow]
   workflow_dispatch:
