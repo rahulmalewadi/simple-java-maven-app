@@ -37,7 +37,7 @@ jobs:
           echo "deploying to uat"
           echo "deployed to uat"
   deploy_to_prod:
-    needs: [deploy_to_uat , build] 
+    needs: [build] 
     if: github.event_name != 'pull_request'
     environment: prod
 
