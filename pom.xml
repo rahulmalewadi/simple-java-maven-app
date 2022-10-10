@@ -24,6 +24,14 @@
             <name>libs-snapshot</name>
             <url>http://44.192.100.5:8081/artifactory/libs-snapshot/</url>
         </repository>
+    <repository>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>artifactory-server2</id>
+            <name>libs-release</name>
+            <url>http://44.191.100.5:8081/artifactory/libs-release/</url>
+        </repository>
     </repositories>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
