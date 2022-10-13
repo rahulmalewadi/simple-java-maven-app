@@ -3,6 +3,9 @@ name: unix
 on:
  workflow_dispatch:
   inputs:
+    bool:
+     type: boolean
+     required: true
     
 
 jobs:
@@ -11,7 +14,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: run shell
+        if: ${{ github.event.inputs.bool == 'true' }}
         run: |
-          which ksh
+          echo hello world
           
