@@ -15,8 +15,9 @@ jobs:
 
     steps:
 
-      - name: run shell
-        if: ${{ github.event.inputs.bool == 'true' }}
+      
+      - if: ${{ github.event.inputs.bool == 'true' }}
+        name: ss
         run: |
           echo hello world
           
